@@ -73,7 +73,7 @@ function [ didHWInit, HW ] = InitializeHardware( HW )
         HW.ppd = monWidthPx / monWidthDeg; % avg pixels per º visual angle
         
         % Tell MATLAB to not read keystrokes into command window
-        ListenChar(2);
+        %ListenChar(2);
 
         % Initialize audio players
         InitializePsychSound;
