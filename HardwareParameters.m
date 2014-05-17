@@ -7,13 +7,23 @@ function [ HW ] = HardwareParameters()
     % Projector ('1424'), plasma ('1424plasma'), or stereoscope
     % ('1402chatnoir'), etc.
     HW.room = '1419';
-    HW.screenNum = 0; % see Screen('Screens?')
+    HW.screenNum = 1; % see Screen('Screens?')
     
     % HW.monWidth: width of entire viewable screen (cm)
     %   (Will later be multiplied by the fraction used, if stereoscope)
     % HW.viewDist: viewing distance (cm)
     knownRoom = false;
     switch lower(HW.room)
+        case '1419'
+            switch HW.screenNum
+                case 1 % Experimental machine
+                    HW.monWidth = 38.5;
+                    HW.viewDist = 68.5;
+                    HW.useStereoscope = true;
+                    knownRoom = true;
+                case 2 % Control screen
+                    HW.useStereoscope = true;
+            end
         case '1424'
             switch HW.screenNum
                 case 1 % Projector

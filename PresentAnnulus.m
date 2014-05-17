@@ -9,13 +9,18 @@ end
 presentPairs = 10; % Number of pairs of presentations
 
 Porig = struct();
-Porig.bgLuminance = 0.1; % TODO specify in absolute Cd/m^2 units
+Porig.bgLuminance = 0.01; % TODO specify in absolute Cd/m^2 units
 Porig.outerRadiusDeg = 2;
 Porig.innerRadiusDeg = 1;
 
 e = []; %caught exception
 HW = HardwareParameters();
 [didHWInit, HW] = InitializeHardware(HW);
+server = PL_InitClient(0);
+
+LPTSetup();
+LPT_Stimulus_Trigger = 4;
+LPT_Stimulus_End= 1;
 
 exitFlag = false;
 
@@ -31,7 +36,7 @@ try
                     contrast = 0.6;
                 case {'h', 'high'}
                     contrast = 1.8;
-                case {'f', 'full', 'flash'}
+                case {'f', 'ff', 'full', 'flash'}
                     contrast = Inf;
                 case {'x', 'exit'}
                     exitFlag = true;
@@ -50,24 +55,44 @@ try
         if isinf(contrast)
             % Full field flash
             P.stimLuminance = 1.0;
-            P.outerRadiusDeg = 100;
+            P.outerRadiusDeg = 170;
             P.innerRadiusDeg = 0;
         else
             P.stimLuminance = P.bgLuminance * (1.0 + contrast);
         end
 
         if ~exitFlag
-                for presCount = 1:presentPairs
-                    for eyeToPresent = [0 1]
+            PL_GetTS(server); % erase existing timestamps
+            for presCount = 1:presentPairs
+                for eyeToPresent = [0 1]
+                    needToPresent = true; % whether to present (again)
+                    while needToPresent
                         P.eyesToDraw = eyeToPresent;
-                        
+
+                        LPTTrigger(LPT_Stimulus_Trigger);
+                        go_ts = []; GetEventsPlexon(server);
+                        fprintf('%s', 'Waiting for go...');
+                        while isempty(go_ts)
+                            [~,~,go_ts,~]=GetEventsPlexon(server);
+                            pause(1e-2); % prevent 100% CPU usage
+                        end
+                        fprintf('%s\n', 'Going now!');
                         pause(.3);
                         HW = DrawAnnulus(HW, P);
                         pause(.1);
                         HW = DrawAnnulus(HW, Pempty);
-                        pause(2.0);
+                        pause(1.0);
+                        LPTTrigger(LPT_Stimulus_End);
+                        
+                        % Check for blinks
+                        [~,~,~,stop_ts]=GetEventsPlexon(server);
+                        needToPresent = ~isempty(stop_ts);
+                        if needToPresent
+                            fprintf('%s\n', 'Blink detected!');
+                        end
                     end
                 end
+            end
         end
         contrastText = ''; % Reset for next contrast
     end
