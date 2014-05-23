@@ -20,12 +20,18 @@ server = PL_InitClient(0);
 
 LPTSetup();
 LPT_Stimulus_Trigger = 4;
-LPT_Stimulus_End= 1;
+LPT_Stimulus_End = 1;
 
 exitFlag = false;
 
 try
     while ~exitFlag
+        % Show blank for now...
+       Pempty = Porig;
+        Pempty.stimLuminance = Pempty.bgLuminance;
+        Pempty.eyesToDraw = [0 1];
+        HW = DrawAnnulus(HW, Pempty);
+        
         % Ask for the contrast (or exit)
         contrast = [];
         while isempty(contrast)
@@ -49,9 +55,6 @@ try
 
         % Calculate stimulus parameters
         P = Porig;
-        Pempty = P;
-        Pempty.stimLuminance = Pempty.bgLuminance;
-        Pempty.eyesToDraw = [0 1];
         if isinf(contrast)
             % Full field flash
             P.stimLuminance = 1.0;
@@ -64,19 +67,27 @@ try
         if ~exitFlag
             PL_GetTS(server); % erase existing timestamps
             for presCount = 1:presentPairs
-                for eyeToPresent = [0 1]
-                    needToPresent = true; % whether to present (again)
-                    while needToPresent
+                % whether we should present entire stimulus pair (again),
+                % ex. because of a blink, etc.
+                presentPair = true;
+                while presentPair
+                    presentPair = false;
+                    for eyeToPresent = [0 1]
                         P.eyesToDraw = eyeToPresent;
-
+                        
+                        % Wait for subject to be ready...
                         LPTTrigger(LPT_Stimulus_Trigger);
                         go_ts = []; GetEventsPlexon(server);
-                        fprintf('%s', 'Waiting for go...');
+                        lrStr = ['l' 'r'];
+                        fprintf('Waiting for go (#%i-%s)...', ...
+                            presCount, lrStr(eyeToPresent+1));
                         while isempty(go_ts)
                             [~,~,go_ts,~]=GetEventsPlexon(server);
                             pause(1e-2); % prevent 100% CPU usage
                         end
-                        fprintf('%s\n', 'Going now!');
+                        
+                        % Present stimulus for this eye
+                        fprintf('Going now!\n');
                         pause(.3);
                         HW = DrawAnnulus(HW, P);
                         pause(.1);
@@ -84,12 +95,18 @@ try
                         pause(1.0);
                         LPTTrigger(LPT_Stimulus_End);
                         
-                        % Check for blinks
+                        % Check for blinks, just up to this point
                         [~,~,~,stop_ts]=GetEventsPlexon(server);
-                        needToPresent = ~isempty(stop_ts);
-                        if needToPresent
-                            fprintf('%s\n', 'Blink detected!');
+                        if ~isempty(stop_ts)
+                            presentPair = true;
+                            fprintf('Blink detected!\n');
+                            break;
                         end
+                        
+                        % Not delaying before next trial here - Plexon
+                        % machine controls delay before it will send next
+                        % 'go' signal
+                        %pause(0.0);
                     end
                 end
             end
