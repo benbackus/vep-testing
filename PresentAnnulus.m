@@ -13,6 +13,11 @@ Porig.bgLuminance = 0.01; % TODO specify in absolute Cd/m^2 units
 Porig.outerRadiusDeg = 2;
 Porig.innerRadiusDeg = 1;
 
+% Open data file for responses to task
+dataColumns = {'GoTime', 'Contrast', 'WhichEye', 'BlinkDetected'};
+trialName = input('Identifier for this set of trials: ', 's');
+datafile = DataFile(DataFile.defaultPath(trialName), dataColumns);
+
 e = []; %caught exception
 HW = HardwareParameters();
 [didHWInit, HW] = InitializeHardware(HW);
@@ -97,10 +102,16 @@ try
                         
                         % Check for blinks, just up to this point
                         [~,~,~,stop_ts]=GetEventsPlexon(server);
-                        if ~isempty(stop_ts)
+                        blinkDetected = ~isempty(stop_ts);
+                        
+                        % Write to data file
+                        % (timestamp, contrast, eye, whether blink was detected)
+                        datafile.append([go_ts, contrast, eyeToPresent, blinkDetected]);
+                        
+                        if blinkDetected
                             presentPair = true;
                             fprintf('Blink detected!\n');
-                            break;
+                            break; % Redo entire pair
                         end
                         
                         % Not delaying before next trial here - Plexon
