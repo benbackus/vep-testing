@@ -8,8 +8,9 @@ end
 
 presentPairs = 10; % Number of pairs of presentations
 
+
 Porig = struct();
-Porig.bgLuminance = 0.01; % TODO specify in absolute Cd/m^2 units
+Porig.bgLuminance = 6.2/227.6; % TODO specify in absolute Cd/m^2 units
 Porig.outerRadiusDeg = 2;
 Porig.innerRadiusDeg = 1;
 

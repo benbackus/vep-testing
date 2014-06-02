@@ -6,8 +6,10 @@ function [ HW ] = DrawAnnulus( HW, P )
 %screenSize = HW.screenRect([3 4]) - HW.screenRect([1 2]);
 screenCenter = 0.5*(HW.screenRect([1 2]) + HW.screenRect([3 4]));
 
-[bgColorVal, ~, HW] = LumToColor(HW, P.bgLuminance);
-[stimColorVal, ~, HW] = LumToColor(HW, P.stimLuminance);
+% [bgColorVal, ~, HW] = LumToColor(HW, P.bgLuminance);
+% [stimColorVal, ~, HW] = LumToColor(HW, P.stimLuminance);
+bgColorVal = HW.white * P.bgLuminance;
+stimColorVal = HW.white * P.stimLuminance;
 
 for eye = [0 1]
     HW = ScreenCustomStereo(...
