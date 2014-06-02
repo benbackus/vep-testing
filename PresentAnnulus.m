@@ -15,8 +15,8 @@ Porig.outerRadiusDeg = 2;
 Porig.innerRadiusDeg = 1;
 
 % Open data file for responses to task
-dataColumns = {'GoTime', 'Contrast', 'WhichEye', 'BlinkDetected'};
-trialName = input('Identifier for this set of trials: ', 's');
+dataColumns = {'pairCount', 'WhichEye', 'plexonGoTime', 'Contrast', 'BlinkDetected'};
+trialName = input('Session name (Subjectcode+experimentInitial):', 's');
 datafile = DataFile(DataFile.defaultPath(trialName), dataColumns);
 
 e = []; %caught exception
@@ -110,7 +110,7 @@ try
                         
                         % Write to data file
                         % (timestamp, contrast, eye, whether blink was detected)
-                        datafile.append([go_ts, contrast, eyeToPresent, blinkDetected]);
+                        datafile.append([presCount, eyeToPresent, go_ts, contrast, blinkDetected]);
                         
                         if blinkDetected
                             presentPair = true;
