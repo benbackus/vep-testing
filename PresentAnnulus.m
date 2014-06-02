@@ -23,12 +23,15 @@ LPTSetup();
 LPT_Stimulus_Trigger = 4;
 LPT_Stimulus_End = 1;
 
+Eyelink('Initialize')
+
 exitFlag = false;
 
 try
+    Eyelink('StartRecording');
     while ~exitFlag
         % Show blank for now...
-       Pempty = Porig;
+        Pempty = Porig;
         Pempty.stimLuminance = Pempty.bgLuminance;
         Pempty.eyesToDraw = [0 1];
         HW = DrawAnnulus(HW, Pempty);
@@ -119,6 +122,7 @@ end
 
 if didHWInit
     HW = CleanupHardware(HW); %#ok<NASGU>
+    Eyelink('Shutdown');
 end
 if ~isempty(e)
     rethrow(e);
