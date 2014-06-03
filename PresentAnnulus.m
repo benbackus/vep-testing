@@ -1,5 +1,5 @@
 function [ ] = PresentAnnulus( contrastText )
-%UNTITLED3 Summary of this function goes here
+%PRESENTANNULUS Summary of this function goes here
 %   Detailed explanation goes here
 
 if nargin < 1 
@@ -8,16 +8,20 @@ end
 
 presentPairs = 10; % Number of pairs of presentations
 
-
+% Stimulus parameters
 Porig = struct();
 Porig.bgLuminance = 6.2/227.6; % TODO specify in absolute Cd/m^2 units
 Porig.outerRadiusDeg = 2;
 Porig.innerRadiusDeg = 1;
+Porig.fixColor = 255 * 0.3 * 6.2/227.6;
+Porig.fixWidthDeg = 0.5;
+Porig.fixLineWidthPx = 3;
 
-% Open data file for responses to task
-dataColumns = {'pairCount', 'WhichEye', 'plexonGoTime', 'Contrast', 'BlinkDetected'};
-trialName = input('Session name (Subjectcode+experimentInitial):', 's');
-datafile = DataFile(DataFile.defaultPath(trialName), dataColumns);
+Pempty = Porig;
+Pempty.eyesToDraw = [0 1];
+Pempty.outerRadiusDeg = 0;
+Pempty.innerRadiusDeg = 0;
+Pempty.stimLuminance = Pempty.bgLuminance; % just to be sure
 
 e = []; %caught exception
 HW = HardwareParameters();
@@ -31,11 +35,26 @@ LPT_Stimulus_End = 1;
 exitFlag = false;
 
 try
+    % Calibrate pupil
+    CalibratePupil(HW, server);
+    
+    % Five-minute countdown
+    breakLength = 5*60;
+    updateLength = 10;
+    for time = breakLength:-updateLength:0
+        fprintf('Time remaining: %is\n', time);
+        pause(updateLength);
+    end
+
+    % Open data file for responses to task
+    dataColumns = {'pairCount', 'WhichEye', 'plexonGoTime', 'Contrast', 'BlinkDetected'};
+    sessionName = input('Session name - main pupil experiment (Subjectcode+experimentInitial):', 's');
+    datafile = DataFile(DataFile.defaultPath(sessionName), dataColumns);
+    
+    [~] = input('Start Plexon data collection and press Enter...','s');
+    
     while ~exitFlag
         % Show blank for now...
-        Pempty = Porig;
-        Pempty.stimLuminance = Pempty.bgLuminance;
-        Pempty.eyesToDraw = [0 1];
         HW = DrawAnnulus(HW, Pempty);
         
         % Ask for the contrast (or exit)

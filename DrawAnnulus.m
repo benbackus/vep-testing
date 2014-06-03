@@ -1,13 +1,10 @@
 function [ HW ] = DrawAnnulus( HW, P )
-%UNTITLED Summary of this function goes here
+%DRAWANNULUS Summary of this function goes here
 %   Detailed explanation goes here
-% eyesToDraw, stimLuminance, bgLuminance, innerRadius, outerRadius
+% eyesToDraw, stimLuminance, bgLuminance, innerRadiusDeg, outerRadiusDeg
 
-%screenSize = HW.screenRect([3 4]) - HW.screenRect([1 2]);
 screenCenter = 0.5*(HW.screenRect([1 2]) + HW.screenRect([3 4]));
 
-% [bgColorVal, ~, HW] = LumToColor(HW, P.bgLuminance);
-% [stimColorVal, ~, HW] = LumToColor(HW, P.stimLuminance);
 bgColorVal = HW.white * P.bgLuminance;
 stimColorVal = HW.white * P.stimLuminance;
 
@@ -22,6 +19,10 @@ for eye = [0 1]
         Screen('gluDisk', HW.winPtr, bgColorVal, ...
             screenCenter(1), screenCenter(2), P.innerRadiusDeg * HW.ppd);
     end
+end
+
+if isfield(P, 'fixColor')
+    DrawFixationMark(HW, P.fixColor, P.fixWidthDeg, P.fixLineWidthPx);
 end
 
 HW = ScreenCustomStereo(HW, 'Flip', HW.winPtr);
