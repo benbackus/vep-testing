@@ -48,7 +48,13 @@ try
 
     % Open data file for responses to task
     dataColumns = {'pairCount', 'WhichEye', 'plexonGoTime', 'Contrast', 'BlinkDetected'};
-    sessionName = input('Session name - main pupil experiment (Subjectcode+experimentInitial):', 's');
+    sessionName = [];
+    while length(sessionName) < 2
+        sessionName = input('Session name - main pupil experiment (Subjectcode+experimentInitial):', 's');
+        if length(sessionName) < 2
+            fprintf('Session name too short!\n');
+        end
+    end
     datafile = DataFile(DataFile.defaultPath(sessionName), dataColumns);
     
     [~] = input('Start Plexon data collection and press Enter...','s');
@@ -74,7 +80,7 @@ try
                     contrast = 0;
             end
             if (isempty(contrast))
-                contrastText = input('Which contrast? (or "x" to exit): ', 's');
+                contrastText = input('Which contrast (l, m, h, f)? (or "x" to exit): ', 's');
             end
         end
 

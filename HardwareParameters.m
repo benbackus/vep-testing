@@ -20,7 +20,7 @@ function [ HW ] = HardwareParameters()
                     HW.useStereoscope = true;
                 case 2 % Experiment monitor
                     HW.monWidth = 38.5;
-                    HW.viewDist = 68.5;
+                    HW.viewDist = 100
                     HW.useStereoscope = true;
                     knownRoom = true;
             end
