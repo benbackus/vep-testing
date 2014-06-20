@@ -81,7 +81,7 @@ datafile.append([5, PdarkCalib.bgLuminance, pupDiamDark, triggerTS]);
 LPTTrigger(LPT_Stimulus_End);
 PL_GetTS(plexonServer); % erase existing timestamps
 
-[~] = input('Stop Plexon data collection and press Enter...','s');
+[~] = input('Done with calibration! Stop Plexon data collection and press Enter...','s');
 
 end
 

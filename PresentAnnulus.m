@@ -39,12 +39,9 @@ try
     CalibratePupil(HW, server);
     
     % Five-minute countdown
-    breakLength = 5*60;
-    updateLength = 10;
-    for time = breakLength:-updateLength:0
-        fprintf('Time remaining: %is\n', time);
-        pause(updateLength);
-    end
+    countDown(5*60, 10, '5-minute dark adaptation');
+    
+    [~] = input('Start Plexon data collection and press Enter...','s');
 
     % Open data file for responses to task
     dataColumns = {'pairCount', 'WhichEye', 'plexonGoTime', 'Contrast', 'BlinkDetected'};
@@ -56,8 +53,6 @@ try
         end
     end
     datafile = DataFile(DataFile.defaultPath(sessionName), dataColumns);
-    
-    [~] = input('Start Plexon data collection and press Enter...','s');
     
     while ~exitFlag
         % Show blank for now...
@@ -78,9 +73,12 @@ try
                 case {'x', 'exit'}
                     exitFlag = true;
                     contrast = 0;
+                case {'2', 'two'}
+                    countDown(2*60, 10, '2-minute dark adaptation');
+                    contrast = [];
             end
             if (isempty(contrast))
-                contrastText = input('Which contrast (l, m, h, f)? (or "x" to exit): ', 's');
+                contrastText = input('Which contrast (l, m, h, f)? (2 for dark adaptation timer, or "x" to exit): ', 's');
             end
         end
 
@@ -162,3 +160,9 @@ end
 
 end
 
+function countDown(breakLength, updateLength, prefix)
+    for time = breakLength:-updateLength:0
+        fprintf('%s - time remaining: %is\n', prefix, time);
+        pause(updateLength);
+    end
+end
