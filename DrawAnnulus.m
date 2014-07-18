@@ -25,8 +25,9 @@ if isfield(P, 'fixColor')
     DrawFixationMark(HW, P.fixColor, P.fixWidthDeg, P.fixLineWidthPx);
 end
 
-stimStartTime = GetSecs();
-HW = ScreenCustomStereo(HW, 'Flip', HW.winPtr);
+% This stimStartTime timestamp isn't very accurate on Windows in
+% multi-display mode, but is better than GetSecs()
+[HW, stimStartTime] = ScreenCustomStereo(HW, 'Flip', HW.winPtr);
 
 end
 
