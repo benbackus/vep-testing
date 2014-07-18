@@ -19,7 +19,7 @@ function [ HW ] = HardwareParameters()
                 case 1 % Control screen
                     HW.useStereoscope = true;
                 case 2 % Experiment monitor
-                    HW.monWidth = 38.5;
+                    HW.monWidth = 53.0;  % Was 38.5 on 7/17/2014, not sure why.
                     HW.viewDist = 100
                     HW.useStereoscope = true;
                     knownRoom = true;

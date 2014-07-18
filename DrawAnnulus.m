@@ -1,4 +1,4 @@
-function [ HW ] = DrawAnnulus( HW, P )
+function [ HW, stimStartTime ] = DrawAnnulus( HW, P )
 %DRAWANNULUS Summary of this function goes here
 %   Detailed explanation goes here
 % eyesToDraw, stimLuminance, bgLuminance, innerRadiusDeg, outerRadiusDeg
@@ -25,6 +25,7 @@ if isfield(P, 'fixColor')
     DrawFixationMark(HW, P.fixColor, P.fixWidthDeg, P.fixLineWidthPx);
 end
 
+stimStartTime = GetSecs();
 HW = ScreenCustomStereo(HW, 'Flip', HW.winPtr);
 
 end

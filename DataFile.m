@@ -1,6 +1,5 @@
 classdef DataFile < handle
     %DATAFILE Helper class for data logging, intended to create CSVs
-    %   TODO Detailed explanation goes here
     
     properties
         data % matrix storing the data written to the file so far
@@ -17,16 +16,13 @@ classdef DataFile < handle
         % Creates a sensible default path and filename
         % Will use a session subfolder w/ timestamp in it, by default
         function path = defaultPath(sessionID)
-            % Current time in standard format: 'yyyymmddTHHMMSS' (ISO 8601)
-            curdate = datestr(now, 30);
-            
             if nargin < 1 || isempty(sessionID)
-                subfolderTS = curdate;
+                curdate30 = datestr(now, 30);   % Current time in standard format: 'yyyymmddTHHMMSS' (ISO 8601)
+                path = [DataFile.DEFAULT_SUBFOLDER curdate30 filesep DataFile.DEFAULT_FILENAME];
             else
-                subfolderTS = [curdate ' ' sessionID];
+                curdate = datestr(now, 'yyyy_mm_dd');   % 'yyyy-mm-dd' format. Used here for naming the data directory.
+                path = [DataFile.DEFAULT_SUBFOLDER curdate filesep sessionID '.csv'];
             end
-            path = [DataFile.DEFAULT_SUBFOLDER subfolderTS filesep ...
-                DataFile.DEFAULT_FILENAME];
         end
     end
     
@@ -50,7 +46,9 @@ classdef DataFile < handle
             % Initialize any required folders not yet created
             [folderName, ~, ~] = fileparts(path);
             if ~isempty(folderName)
-                mkdir(folderName);
+                if ~exist(folderName, 'dir')
+                    mkdir(folderName);
+                end
             end
             
             % Open file and write header line
@@ -77,7 +75,8 @@ classdef DataFile < handle
         % (caution: any exceptions here will silently terminate the
         % function!)
         function delete(df) % for deleting this handle, not the file!
-            if ftell(df.fileHandle) >= 0 % if file is still open
+            fileName = fopen(df.fileHandle);
+            if ~isempty(fileName) % if file is still open
                 fclose(df.fileHandle);
             end
         end

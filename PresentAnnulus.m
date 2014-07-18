@@ -44,7 +44,7 @@ try
     [~] = input('Start Plexon data collection and press Enter...','s');
 
     % Open data file for responses to task
-    dataColumns = {'pairCount', 'WhichEye', 'plexonGoTime', 'Contrast', 'BlinkDetected'};
+    dataColumns = {'pairCount', 'WhichEye', 'plexonGoTime', 'localGoTime', 'stimStartTime', 'Contrast', 'BlinkDetected'};
     sessionName = [];
     while length(sessionName) < 2
         sessionName = input('Session name - main pupil experiment (Subjectcode+experimentInitial):', 's');
@@ -114,13 +114,14 @@ try
                             [~,~,go_ts,~]=GetEventsPlexon(server);
                             pause(1e-2); % prevent 100% CPU usage
                         end
+                        localGoTime = GetSecs();
                         
                         % Present stimulus for this eye
                         fprintf('Going now!\n');
                         pause(.3);
-                        HW = DrawAnnulus(HW, P);
+                        [HW, stimStartTime] = DrawAnnulus(HW, P);
                         pause(.1);
-                        HW = DrawAnnulus(HW, Pempty);
+                        [HW, ~] = DrawAnnulus(HW, Pempty);
                         pause(1.0);
                         LPTTrigger(LPT_Stimulus_End);
                         
@@ -130,7 +131,7 @@ try
                         
                         % Write to data file
                         % (timestamp, contrast, eye, whether blink was detected)
-                        datafile.append([presCount, eyeToPresent, go_ts, contrast, blinkDetected]);
+                        datafile.append([presCount, eyeToPresent, go_ts, localGoTime, stimStartTime, contrast, blinkDetected]);
                         
                         if blinkDetected
                             presentPair = true;
