@@ -163,7 +163,13 @@ end
 
 function countDown(breakLength, updateLength, prefix)
     for time = breakLength:-updateLength:0
-        fprintf('%s - time remaining: %is\n', prefix, time);
+        fprintf('%s - time remaining (hold down Esc to skip): %is\n', prefix, time);
         pause(updateLength);
+        
+        [ ~, ~, keyCode ] = KbCheck;
+        if keyCode(KbName('Esc'));
+            fprintf('Detected ''Esc'' - skipping!\n');
+            break;
+        end
     end
 end
